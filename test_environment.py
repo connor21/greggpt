@@ -1,31 +1,21 @@
-"""Test script to validate environment setup."""
-import sys
-import importlib
+"""Test environment for gregGPT components."""
+from src.models.model_manager import ModelManager
 
-REQUIRED_PACKAGES = [
-    "black",
-    "pydantic",
-    "fastapi",
-    "sqlalchemy",
-    "sqlmodel"
-]
-
-def test_imports():
-    """Test that all required packages can be imported."""
-    failed = []
-    for package in REQUIRED_PACKAGES:
-        try:
-            importlib.import_module(package)
-            print(f"✓ {package} imported successfully")
-        except ImportError:
-            failed.append(package)
-            print(f"✗ Failed to import {package}")
-
-    if failed:
-        print("\nERROR: Failed to import packages:", ", ".join(failed))
-        sys.exit(1)
-    print("\nSUCCESS: All packages imported successfully")
-    sys.exit(0)
+def test_model_setup():
+    """Test model loading and basic response generation."""
+    print("Testing model setup...")
+    
+    model_path = "/Volumes/SafeSpace/getNext-IT/__workdir__/greggpt/models/tinyllama-1.1b-chat-v1.0.Q2_K.gguf"
+    manager = ModelManager(model_path)
+    
+    print("Loading model...")
+    manager.load_model()
+    
+    print("Testing prompt response...")
+    response = manager.generate_response("Hello, how are you?")
+    print(f"Model response: {response}")
+    
+    print("Model setup test completed successfully")
 
 if __name__ == "__main__":
-    test_imports()
+    test_model_setup()

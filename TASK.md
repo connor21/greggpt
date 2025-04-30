@@ -10,14 +10,14 @@ This checklist outlines the modular, independent steps required to build and dep
 - [x] Validate dependency installation via test script
 
 ## ✅ Project Initialization
-- [ ] Create folder structure and placeholder files as in `PLANNING.md`
-- [ ] Set up `.gitignore`, `README.md`, and repo initialization
+- [x] Create folder structure and placeholder files as in `PLANNING.md`
+- [x] Set up `.gitignore`, `README.md`, and repo initialization
 
 ## ✅ Model Setup
-- [ ] Choose and download local LLM model (e.g. llama.cpp, GPT4All)
-- [ ] Store model in `models/`
-- [ ] Implement `model_manager.py` to load and query model
-- [ ] Test LLM with basic prompt/response
+- [x] Choose and download local LLM model (e.g. llama.cpp, GPT4All)
+- [x] Store model in `models/`
+- [x] Implement `model_manager.py` to load and query model
+- [x] Test LLM with basic prompt/response
 
 ## ✅ Document Ingestion
 - [ ] Implement Markdown loader in `document_loader.py`
