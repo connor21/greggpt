@@ -30,9 +30,9 @@ This checklist outlines the modular, independent steps required to build and dep
 - [x] Validate stored documents and retrieval relevance (test_vectorstore.py)
 
 ## ✅ RAG Pipeline
-- [ ] Implement `retriever.py` to fetch relevant context
-- [ ] Assemble prompt using retrieved context + user query
-- [ ] Add filtering logic for irrelevant matches
+- [x] Implement `retriever.py` to fetch relevant context
+- [x] Assemble prompt using retrieved context + user query
+- [x] Add filtering logic for irrelevant matches (distance threshold)
 
 ## ✅ Chat Logic
 - [ ] Create `chat_handler.py` with message-passing interface
