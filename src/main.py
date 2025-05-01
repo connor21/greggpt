@@ -1,4 +1,5 @@
 """Main Streamlit application for greggpt."""
+import logging
 import sys
 from pathlib import Path
 import streamlit as st
@@ -21,6 +22,12 @@ def init_chat_handler():
 
 def main():
     """Main application interface."""
+    logging.basicConfig(
+        level=logging.INFO,
+        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    )
+    logger = logging.getLogger(__name__)
+    
     st.title("greggpt - Document Chat Interface")
     st.write("Chat with your documents using local LLMs")
     

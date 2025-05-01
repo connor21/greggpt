@@ -49,7 +49,7 @@ This checklist outlines the modular, independent steps required to build and dep
 - [x] Implement config loader and error fallback logic
 
 ## ✅ Logging and Testing
-- [ ] Add `logging` to all modules
+- [x] Add `logging` to all modules
 - [ ] Write unit tests using `pytest` for core functions
 - [ ] Create test Markdown file and sample queries
 

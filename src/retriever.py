@@ -1,5 +1,8 @@
 """Module for retrieving relevant document chunks."""
+import logging
 from typing import List, Dict
+
+logger = logging.getLogger(__name__)
 from src.vectorstore.vector_store import VectorStore
 
 class Retriever:
@@ -20,7 +23,9 @@ class Retriever:
         Returns:
             List of relevant chunks with content and metadata
         """
+        logger.info(f"Retrieving {k} chunks for query: {query}")
         results = self.vectorstore.query(query, n_results=k)
+        logger.info(f"Retrieved {len(results)} chunks before filtering")
         return self.filter_results(results)
         
     def filter_results(self, results: List[Dict]) -> List[Dict]:
@@ -34,4 +39,6 @@ class Retriever:
         Returns:
             Filtered list of chunks
         """
-        return [r for r in results if r['distance'] <= 1.0]
+        filtered = [r for r in results if r['distance'] <= 1.0]
+        logger.info(f"Filtered from {len(results)} to {len(filtered)} chunks")
+        return filtered

@@ -1,5 +1,8 @@
 """Module for handling chat interactions."""
+import logging
 from typing import Dict, List
+
+logger = logging.getLogger(__name__)
 from src.models.model_manager import ModelManager
 from src.document_loader import DocumentLoader
 from src.retriever import Retriever
@@ -9,10 +12,12 @@ class ChatHandler:
     
     def __init__(self, config: Dict):
         """Initialize with configuration dictionary."""
+        logger.info("Initializing ChatHandler with config")
         self.config = config
         self.model = ModelManager(config['model_path'])
         self.loader = DocumentLoader(config['docs_dir'])
         self.retriever = Retriever(config['vectorstore_path'])
+        logger.info("ChatHandler components initialized")
         
     def process_query(self, query: str) -> Dict:
         """
@@ -27,16 +32,21 @@ class ChatHandler:
             - sources: List of source documents used
             - tokens: Token usage information
         """
+        logger.info(f"Processing query: {query}")
         # Retrieve relevant context
         context_chunks = self.retriever.retrieve_relevant_chunks(query)
+        logger.info(f"Retrieved {len(context_chunks)} context chunks")
         
         # Format prompt with context
         prompt = self._format_prompt(query, context_chunks)
         
         # Ensure model is loaded and get response
         if not hasattr(self.model, 'llm') or self.model.llm is None:
+            logger.info("Loading LLM model")
             self.model.load_model()
+        logger.info("Generating response from LLM")
         response = self.model.generate_response(prompt)
+        logger.info(f"Generated response with {len(response.split())} tokens")
         
         return {
             'response': self.format_response(response, context_chunks),
