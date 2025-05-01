@@ -59,9 +59,9 @@ This checklist outlines the modular, independent steps required to build and dep
 - [ ] Add error handling for empty queries, missing models, etc.
 
 ## ✅ Documentation and Deployment
-- [ ] Expand `README.md` with setup, usage, and design notes
-- [ ] Add usage examples and screenshots to README
-- [ ] Create `Dockerfile` and test container build locally
+- [x] Expand `README.md` with setup, usage, and design notes
+- [x] Add usage examples and screenshots to README
+- [x] Create `Dockerfile` and test container build locally
 
 ## ✅ Optional Features
 - [ ] UI toggle to switch between multiple models
