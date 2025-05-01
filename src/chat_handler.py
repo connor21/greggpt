@@ -33,8 +33,10 @@ class ChatHandler:
         # Format prompt with context
         prompt = self._format_prompt(query, context_chunks)
         
-        # Get LLM response
-        response = self.model.generate(prompt)
+        # Ensure model is loaded and get response
+        if not hasattr(self.model, 'llm') or self.model.llm is None:
+            self.model.load_model()
+        response = self.model.generate_response(prompt)
         
         return {
             'response': self.format_response(response, context_chunks),

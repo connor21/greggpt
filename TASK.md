@@ -40,9 +40,9 @@ This checklist outlines the modular, independent steps required to build and dep
 - [x] Format output and track source citations (test_chat_handler.py)
 
 ## ✅ Streamlit Interface
-- [ ] Build chat UI in `main.py` with input and response blocks
-- [ ] Add session state, reset, and timestamp features
-- [ ] Display token usage and document matches (optional)
+- [x] Build chat UI in `main.py` with input and response blocks
+- [x] Add session state, reset, and timestamp features
+- [x] Display token usage and document matches
 
 ## ✅ Configuration
 - [ ] Create `config.yaml` with paths, chunk sizes, model params

@@ -13,6 +13,7 @@ venv/
 # Logs and databases
 *.log
 *.sqlite
+*.sqlite3
 *.db
 
 # Environment files
