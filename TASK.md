@@ -35,9 +35,9 @@ This checklist outlines the modular, independent steps required to build and dep
 - [x] Add filtering logic for irrelevant matches (distance threshold)
 
 ## ✅ Chat Logic
-- [ ] Create `chat_handler.py` with message-passing interface
-- [ ] Integrate model, retriever, and prompt composer
-- [ ] Format output and track source citations
+- [x] Create `chat_handler.py` with message-passing interface
+- [x] Integrate model, retriever, and prompt composer
+- [x] Format output and track source citations (test_chat_handler.py)
 
 ## ✅ Streamlit Interface
 - [ ] Build chat UI in `main.py` with input and response blocks
