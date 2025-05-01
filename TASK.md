@@ -25,9 +25,9 @@ This checklist outlines the modular, independent steps required to build and dep
 - [x] Generate embeddings and store in `vectorstore/`
 
 ## ✅ Embedding and Vector Store
-- [ ] Select and initialize vector store (FAISS or Chroma)
-- [ ] Implement storage, retrieval, and query interfaces
-- [ ] Validate stored documents and retrieval relevance
+- [x] Select and initialize vector store (Chroma)
+- [x] Implement storage, retrieval, and query interfaces
+- [x] Validate stored documents and retrieval relevance (test_vectorstore.py)
 
 ## ✅ RAG Pipeline
 - [ ] Implement `retriever.py` to fetch relevant context
