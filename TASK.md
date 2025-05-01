@@ -45,8 +45,8 @@ This checklist outlines the modular, independent steps required to build and dep
 - [x] Display token usage and document matches
 
 ## ✅ Configuration
-- [ ] Create `config.yaml` with paths, chunk sizes, model params
-- [ ] Implement config loader and error fallback logic
+- [x] Create `config.yaml` with paths, chunk sizes, model params
+- [x] Implement config loader and error fallback logic
 
 ## ✅ Logging and Testing
 - [ ] Add `logging` to all modules
