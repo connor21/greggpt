@@ -20,9 +20,9 @@ This checklist outlines the modular, independent steps required to build and dep
 - [x] Test LLM with basic prompt/response
 
 ## ✅ Document Ingestion
-- [ ] Implement Markdown loader in `document_loader.py`
-- [ ] Chunk and clean `.md` text data
-- [ ] Generate embeddings and store in `vectorstore/`
+- [x] Implement Markdown loader in `document_loader.py`
+- [x] Chunk and clean `.md` text data
+- [x] Generate embeddings and store in `vectorstore/`
 
 ## ✅ Embedding and Vector Store
 - [ ] Select and initialize vector store (FAISS or Chroma)
