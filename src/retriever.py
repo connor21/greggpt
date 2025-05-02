@@ -11,6 +11,19 @@ class Retriever:
     def __init__(self, vectorstore_path: str = "vectorstore"):
         """Initialize with vector store instance."""
         self.vectorstore = VectorStore(vectorstore_path)
+
+    def store_documents(self, chunks: List[Dict]) -> bool:
+        """
+        Store document chunks in vector store.
+        
+        Args:
+            chunks: List of document chunks with content and metadata
+            
+        Returns:
+            True if storage succeeded
+        """
+        logger.info(f"Storing {len(chunks)} document chunks")
+        return self.vectorstore.store_documents(chunks)
         
     def retrieve_relevant_chunks(self, query: str, k: int = 3) -> List[Dict]:
         """

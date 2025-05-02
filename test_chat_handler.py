@@ -1,45 +1,82 @@
-"""Test script for ChatHandler functionality."""
+"""Unit tests for ChatHandler functionality."""
+import pytest
+from unittest.mock import MagicMock, patch
 from src.chat_handler import ChatHandler
-from unittest.mock import MagicMock
 
-def test_chat_handler():
-    """Test end-to-end chat processing."""
-    # Mock configuration
-    config = {
+@pytest.fixture
+def mock_config():
+    """Fixture providing test configuration."""
+    return {
         'model_path': 'test_model',
         'docs_dir': 'test_docs',
         'vectorstore_path': 'test_vectorstore'
     }
+
+@pytest.fixture
+def mock_components():
+    """Fixture providing mocked model and retriever."""
+    model = MagicMock()
+    model.generate_response.return_value = "Mocked response"
     
-    # Create handler with mocked components
-    handler = ChatHandler(config)
-    
-    # Mock model manager
-    handler.model = MagicMock()
-    handler.model.generate.return_value = "Python is a versatile programming language."
-    
-    # Mock retriever
-    handler.retriever = MagicMock()
-    handler.retriever.retrieve_relevant_chunks.return_value = [
+    retriever = MagicMock()
+    retriever.retrieve_relevant_chunks.return_value = [
         {
-            'content': 'Python is used for web development and data science.',
-            'metadata': {'source': 'python.md', 'chunk_start': 0},
-            'distance': 0.3
+            'content': 'Mocked content',
+            'metadata': {'source': 'test.md'},
+            'distance': 0.2
         }
     ]
     
-    # Test query processing
-    result = handler.process_query("What is Python?")
-    print("ChatHandler results:")
-    print(f"Response: {result['response']}")
-    print(f"Sources: {result['sources']}")
-    print(f"Tokens used: {result['tokens']}")
-    
-    # Test response formatting
-    test_response = "Test response"
-    test_sources = [{'source': 'doc1.md'}, {'source': 'doc2.md'}]
-    formatted = handler.format_response(test_response, test_sources)
-    print(f"\nFormatted response:\n{formatted}")
+    return model, retriever
 
-if __name__ == "__main__":
-    test_chat_handler()
+def test_chat_handler_initialization(mock_config):
+    """Test ChatHandler initialization."""
+    with patch('src.chat_handler.ModelManager'), \
+         patch('src.chat_handler.Retriever'):
+        handler = ChatHandler(mock_config)
+        assert handler.config == mock_config
+        assert hasattr(handler, 'model')
+        assert hasattr(handler, 'retriever')
+
+def test_process_query(mock_config, mock_components):
+    """Test query processing."""
+    model, retriever = mock_components
+    with patch('src.chat_handler.ModelManager', return_value=model), \
+         patch('src.chat_handler.Retriever', return_value=retriever):
+        handler = ChatHandler(mock_config)
+        result = handler.process_query("test query")
+        
+        assert isinstance(result, dict)
+        assert 'response' in result
+        assert 'sources' in result
+        assert 'tokens' in result
+        retriever.retrieve_relevant_chunks.assert_called_once_with("test query")
+        model.generate_response.assert_called_once()
+
+def test_format_response():
+    """Test response formatting."""
+    handler = ChatHandler({
+        'model_path': 'test',
+        'docs_dir': 'test',
+        'vectorstore_path': 'test'
+    })
+    response = "Test response"
+    sources = [{'source': 'doc1.md'}, {'source': 'doc2.md'}]
+    formatted = handler.format_response(response, sources)
+    
+    assert response in formatted
+    assert all(src['source'] in formatted for src in sources)
+    assert "Sources:" in formatted
+
+def test_empty_query(mock_config, mock_components):
+    """Test handling of empty query."""
+    model, retriever = mock_components
+    with patch('src.chat_handler.ModelManager', return_value=model), \
+         patch('src.chat_handler.Retriever', return_value=retriever):
+        handler = ChatHandler(mock_config)
+        result = handler.process_query("")
+        
+        assert isinstance(result, dict)
+        assert 'response' in result
+        retriever.retrieve_relevant_chunks.assert_not_called()
+        model.generate_response.assert_not_called()

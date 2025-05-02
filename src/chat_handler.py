@@ -17,6 +17,14 @@ class ChatHandler:
         self.model = ModelManager(config['model_path'])
         self.loader = DocumentLoader(config['docs_dir'])
         self.retriever = Retriever(config['vectorstore_path'])
+        
+        # Load and store documents at startup
+        logger.info("Loading and storing documents")
+        documents = self.loader.load_documents()
+        chunks = self.loader.chunk_documents(documents)
+        self.retriever.store_documents(chunks)
+        logger.info(f"Loaded {len(documents)} documents and stored {len(chunks)} chunks")
+        
         logger.info("ChatHandler components initialized")
         
     def process_query(self, query: str) -> Dict:
@@ -33,6 +41,15 @@ class ChatHandler:
             - tokens: Token usage information
         """
         logger.info(f"Processing query: {query}")
+        
+        # Handle empty query
+        if not query.strip():
+            return {
+                'response': "Please provide a valid query.",
+                'sources': [],
+                'tokens': 0
+            }
+            
         # Retrieve relevant context
         context_chunks = self.retriever.retrieve_relevant_chunks(query)
         logger.info(f"Retrieved {len(context_chunks)} context chunks")

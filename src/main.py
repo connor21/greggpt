@@ -1,9 +1,25 @@
 """Main Streamlit application for greggpt."""
+import asyncio
 import logging
 import sys
 from pathlib import Path
 import streamlit as st
 from datetime import datetime
+
+# Initialize event loop before anything else
+import asyncio
+import nest_asyncio
+try:
+    loop = asyncio.get_event_loop()
+except RuntimeError:
+    loop = asyncio.new_event_loop()
+    asyncio.set_event_loop(loop)
+nest_asyncio.apply()
+
+# Configure Streamlit to avoid PyTorch conflicts
+import streamlit as st
+import os
+os.environ['STREAMLIT_SERVER_ENABLE_FILE_WATCHER'] = 'false'
 
 # Add project root to path
 sys.path.append(str(Path(__file__).parent.parent))
@@ -20,15 +36,34 @@ def init_chat_handler():
     config = load_config()
     return ChatHandler(config)
 
+def cleanup_resources():
+    """Clean up multiprocessing resources."""
+    import multiprocessing
+    import multiprocessing.util
+    if multiprocessing.current_process().name == 'MainProcess':
+        # Force cleanup of all resources
+        multiprocessing.util._cleanup()
+        # Close all active pools and managers
+        for pool in multiprocessing.active_children():
+            pool.terminate()
+        # Explicitly clean up semaphores
+        if hasattr(multiprocessing, '_semaphore_tracker'):
+            multiprocessing._semaphore_tracker._stop()
+
 def main():
     """Main application interface."""
+    import atexit
+    atexit.register(cleanup_resources)
+    
+    # File watching already disabled via environment variable
+    
     logging.basicConfig(
-        level=logging.INFO,
+        level=logging.DEBUG,
         format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
     )
     logger = logging.getLogger(__name__)
     
-    st.title("greggpt - Document Chat Interface")
+    st.title("GREGgpt - Document Chat Interface")
     st.write("Chat with your documents using local LLMs")
     
     # Initialize chat handler
@@ -83,4 +118,19 @@ def main():
             st.rerun()
 
 if __name__ == "__main__":
-    main()
+    # Isolate PyTorch from Streamlit
+    import os
+    os.environ['STREAMLIT_SERVER_ENABLE_FILE_WATCHER'] = 'false'
+    os.environ['NO_PROXY'] = 'localhost,127.0.0.1'
+    
+    try:
+        main()
+    finally:
+        # Safer resource cleanup
+        import multiprocessing
+        for p in multiprocessing.active_children():
+            try:
+                p.terminate()
+                p.join()
+            except:
+                pass

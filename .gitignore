@@ -15,6 +15,7 @@ venv/
 *.sqlite
 *.sqlite3
 *.db
+vectorstore/
 
 # Environment files
 .env
