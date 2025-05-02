@@ -9,7 +9,9 @@ def mock_config():
     return {
         'model_path': 'test_model',
         'docs_dir': 'test_docs',
-        'vectorstore_path': 'test_vectorstore'
+        'vectorstore_path': 'test_vectorstore',
+        'chunk_size': 1000,
+        'chunk_overlap': 200
     }
 
 @pytest.fixture
@@ -32,11 +34,17 @@ def mock_components():
 def test_chat_handler_initialization(mock_config):
     """Test ChatHandler initialization."""
     with patch('src.chat_handler.ModelManager'), \
-         patch('src.chat_handler.Retriever'):
+         patch('src.chat_handler.Retriever'), \
+         patch('src.chat_handler.DocumentLoader') as mock_loader:
         handler = ChatHandler(mock_config)
         assert handler.config == mock_config
         assert hasattr(handler, 'model')
         assert hasattr(handler, 'retriever')
+        mock_loader.assert_called_once_with(
+            mock_config['docs_dir'],
+            chunk_size=mock_config['chunk_size'],
+            chunk_overlap=mock_config['chunk_overlap']
+        )
 
 def test_process_query(mock_config, mock_components):
     """Test query processing."""
@@ -58,7 +66,9 @@ def test_format_response():
     handler = ChatHandler({
         'model_path': 'test',
         'docs_dir': 'test',
-        'vectorstore_path': 'test'
+        'vectorstore_path': 'test',
+        'chunk_size': 1000,
+        'chunk_overlap': 200
     })
     response = "Test response"
     sources = [{'source': 'doc1.md'}, {'source': 'doc2.md'}]

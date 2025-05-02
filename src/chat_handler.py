@@ -15,7 +15,11 @@ class ChatHandler:
         logger.info("Initializing ChatHandler with config")
         self.config = config
         self.model = ModelManager(config['model_path'])
-        self.loader = DocumentLoader(config['docs_dir'])
+        self.loader = DocumentLoader(
+            config['docs_dir'],
+            chunk_size=config['chunk_size'],
+            chunk_overlap=config['chunk_overlap']
+        )
         self.retriever = Retriever(config['vectorstore_path'])
         
         # Load and store documents at startup

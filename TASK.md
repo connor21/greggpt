@@ -55,7 +55,7 @@ This checklist outlines the modular, independent steps required to build and dep
 
 ## ✅ Cleanup and Optimization
 - [x] Fix document loading at startup in RAG pipeline
-- [ ] Optimize chunking and embedding performance
+- [x] Optimize chunking and embedding performance
 - [ ] Clean up unused imports, functions, and test artifacts
 - [ ] Add error handling for empty queries, missing models, etc.
 

@@ -8,11 +8,20 @@ logger = logging.getLogger(__name__)
 class DocumentLoader:
     """Handles loading and preprocessing of markdown documents."""
     
-    def __init__(self, docs_dir: str):
-        """Initialize with directory containing markdown files."""
+    def __init__(self, docs_dir: str, chunk_size: int = 1000, chunk_overlap: int = 200):
+        """Initialize with directory and chunking parameters.
+        
+        Args:
+            docs_dir: Directory containing markdown files
+            chunk_size: Size of chunks in characters (from config)
+            chunk_overlap: Overlap between chunks in characters (from config)
+        """
         logger.info(f"Initializing DocumentLoader with directory: {docs_dir}")
         self.docs_dir = Path(docs_dir)
+        self.chunk_size = chunk_size
+        self.chunk_overlap = chunk_overlap
         logger.info(f"Document directory set to: {self.docs_dir}")
+        logger.info(f"Chunking parameters - size: {chunk_size}, overlap: {chunk_overlap}")
         
     def load_documents(self) -> List[Dict]:
         """Load and parse all markdown files in directory.
@@ -71,13 +80,11 @@ class DocumentLoader:
         logger.info(f"Chunking {len(documents)} documents")
         chunks = []
         # Validate chunking parameters
-        chunk_size = 1000  # characters
-        overlap = 200
-        if overlap >= chunk_size:
-            logger.warning(f"Overlap {overlap} >= chunk_size {chunk_size}, reducing overlap to 25% of chunk_size")
-            overlap = chunk_size // 4
+        if self.chunk_overlap >= self.chunk_size:
+            logger.warning(f"Overlap {self.chunk_overlap} >= chunk_size {self.chunk_size}, reducing overlap to 25% of chunk_size")
+            self.chunk_overlap = self.chunk_size // 4
         total_chars = sum(len(d['content']) for d in documents)
-        logger.info(f"Total characters to process: {total_chars} with chunk_size={chunk_size}, overlap={overlap}")
+        logger.info(f"Total characters to process: {total_chars} with chunk_size={self.chunk_size}, overlap={self.chunk_overlap}")
         
         try:
             for doc in documents:
@@ -93,12 +100,12 @@ class DocumentLoader:
                         break
                     prev_start = start
                     
-                    end = min(start + chunk_size, len(content))
+                    end = min(start + self.chunk_size, len(content))
                     chunk = content[start:end]
                     chunks.append(self._create_chunk(chunk, metadata, start, end))
                     
                     # Ensure we make forward progress
-                    new_start = end - overlap
+                    new_start = end - self.chunk_overlap
                     start = max(new_start, start + 1)  # Always move forward by at least 1
                     
                     logger.debug(f"Processed chunk {len(chunks)}: {start}-{end} of {len(content)} chars")
