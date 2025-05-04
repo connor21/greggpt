@@ -40,10 +40,35 @@ venv\Scripts\activate    # Windows
 pip install -r requirements.txt
 ```
 
-3. Download a local LLM (e.g. TinyLlama) and place in `models/`:
+3. Download a local LLM and place in `models/` directory. Choose from these options:
+
+### Recommended Models (GGUF format):
+
+**TinyLlama (1.1B) - Fastest, lowest resource:**
 ```bash
+# Using wget:
 wget https://huggingface.co/TheBloke/TinyLlama-1.1B-Chat-v1.0-GGUF/resolve/main/tinyllama-1.1b-chat-v1.0.Q2_K.gguf -P models/
+
+# Using curl:
+curl -L https://huggingface.co/TheBloke/TinyLlama-1.1B-Chat-v1.0-GGUF/resolve/main/tinyllama-1.1b-chat-v1.0.Q2_K.gguf -o models/tinyllama-1.1b-chat-v1.0.Q2_K.gguf
 ```
+
+**Llama 2 (7B) - Better quality, more resources:**
+```bash
+wget https://huggingface.co/TheBloke/Llama-2-7B-Chat-GGUF/resolve/main/llama-2-7b-chat.Q4_K_M.gguf -P models/
+```
+
+**Mistral (7B) - Excellent balance:**
+```bash
+wget https://huggingface.co/TheBloke/Mistral-7B-Instruct-v0.1-GGUF/resolve/main/mistral-7b-instruct-v0.1.Q4_K_M.gguf -P models/
+```
+
+**GPT4All (3.5B) - Optimized for CPU:**
+```bash
+wget https://gpt4all.io/models/gguf/gpt4all-falcon-q4_0.gguf -P models/
+```
+
+> Note: Larger models require more RAM. Start with TinyLlama if unsure.
 
 4. Place your markdown documents in `docs/` directory
 
