@@ -2,23 +2,19 @@
 import asyncio
 import logging
 import sys
+import os
 from pathlib import Path
-import streamlit as st
 from datetime import datetime
-
-# Initialize event loop before anything else
-import asyncio
 import nest_asyncio
+import streamlit as st
+
+# Initialize event loop and configure environment
 try:
     loop = asyncio.get_event_loop()
 except RuntimeError:
     loop = asyncio.new_event_loop()
     asyncio.set_event_loop(loop)
 nest_asyncio.apply()
-
-# Configure Streamlit to avoid PyTorch conflicts
-import streamlit as st
-import os
 os.environ['STREAMLIT_SERVER_ENABLE_FILE_WATCHER'] = 'false'
 
 # Add project root to path
@@ -39,16 +35,10 @@ def init_chat_handler():
 def cleanup_resources():
     """Clean up multiprocessing resources."""
     import multiprocessing
-    import multiprocessing.util
     if multiprocessing.current_process().name == 'MainProcess':
-        # Force cleanup of all resources
-        multiprocessing.util._cleanup()
         # Close all active pools and managers
         for pool in multiprocessing.active_children():
             pool.terminate()
-        # Explicitly clean up semaphores
-        if hasattr(multiprocessing, '_semaphore_tracker'):
-            multiprocessing._semaphore_tracker._stop()
 
 def main():
     """Main application interface."""
@@ -73,13 +63,29 @@ def main():
     if "messages" not in st.session_state:
         st.session_state.messages = []
         st.session_state.token_count = 0
+        st.session_state.current_model = chat_handler.model.active_model
+    
+    # Model selection dropdown
+    available_models = chat_handler.model.get_available_models()
+    selected_model = st.sidebar.selectbox(
+        "Select Model",
+        options=list(available_models.keys()),
+        index=list(available_models.keys()).index(st.session_state.current_model)
+    )
+    
+    # Handle model switching
+    if selected_model != st.session_state.current_model:
+        try:
+            chat_handler.model.switch_model(selected_model)
+            st.session_state.current_model = selected_model
+            st.sidebar.success(f"Switched to {selected_model} model")
+        except Exception as e:
+            st.sidebar.error(f"Failed to switch models: {str(e)}")
     
     # Display chat messages
     for msg in st.session_state.messages:
         with st.chat_message(msg["role"]):
             st.markdown(msg["content"])
-            if msg.get("sources"):
-                st.caption(f"Sources: {', '.join(s['source'] for s in msg['sources'])}")
             if msg.get("timestamp"):
                 st.caption(msg["timestamp"])
     

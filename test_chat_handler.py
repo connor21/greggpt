@@ -61,22 +61,75 @@ def test_process_query(mock_config, mock_components):
         retriever.retrieve_relevant_chunks.assert_called_once_with("test query")
         model.generate_response.assert_called_once()
 
-def test_format_response():
-    """Test response formatting."""
-    handler = ChatHandler({
-        'model_path': 'test',
-        'docs_dir': 'test',
-        'vectorstore_path': 'test',
-        'chunk_size': 1000,
-        'chunk_overlap': 200
-    })
-    response = "Test response"
-    sources = [{'source': 'doc1.md'}, {'source': 'doc2.md'}]
+def test_format_sources(mock_config):
+    """Test source formatting utility."""
+    with patch('src.chat_handler.DocumentLoader'):
+        handler = ChatHandler(mock_config)
+    
+    # Test with normal sources
+    sources = [
+        {
+            'source': 'path/to/doc1.md',
+            'content': 'First source content',
+            'metadata': {'page': 42}
+        },
+        {
+            'source': 'another/doc2.pdf',
+            'content': 'Second source content',
+            'metadata': {'chunk_start': 10, 'chunk_end': 20}
+        }
+    ]
+    
+    formatted = handler._format_sources(sources)
+    assert "Doc1" in formatted
+    assert "Doc2" in formatted
+    assert "- [^1]" in formatted
+    assert "- [^2]" in formatted
+    assert "First source content" in formatted
+    assert "Second source content" in formatted
+    assert "path/to" not in formatted
+    assert "another/" not in formatted
+
+    # Test with missing source name
+    no_source = [{'content': 'Test content', 'metadata': {}}]
+    formatted = handler._format_sources(no_source)
+    assert "Document" in formatted
+    assert "Test content" in formatted
+
+    # Test with source in metadata only
+    meta_source = [{'metadata': {'source': 'meta_doc.txt'}}]
+    formatted = handler._format_sources(meta_source)
+    assert "Meta Doc" in formatted
+
+def test_format_response(mock_config):
+    """Test enhanced response formatting with citations."""
+    with patch('src.chat_handler.DocumentLoader'):
+        handler = ChatHandler(mock_config)
+    
+    response = "Test response with content"
+    sources = [
+        {
+            'source': 'doc1.md',
+            'content': 'content',
+            'metadata': {}
+        }
+    ]
+    
     formatted = handler.format_response(response, sources)
     
+    # Verify response contains original text
     assert response in formatted
-    assert all(src['source'] in formatted for src in sources)
-    assert "Sources:" in formatted
+    
+    # Verify new citation format
+    assert "[^1]" in formatted
+    assert "### Sources" in formatted
+    
+    # Verify markdown bullet format
+    assert "- [^1]" in formatted
+    
+    # Verify no technical metadata
+    assert "chunk_start" not in formatted
+    assert "chunk_end" not in formatted
 
 def test_empty_query(mock_config, mock_components):
     """Test handling of empty query."""

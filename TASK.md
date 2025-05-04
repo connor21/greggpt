@@ -65,6 +65,24 @@ This checklist outlines the modular, independent steps required to build and dep
 - [x] Create `Dockerfile` and test container build locally
 
 ## ✅ Optional Features
-- [ ] UI toggle to switch between multiple models
+- [x] UI toggle to switch between multiple models
+- [x] Improve citation formatting for gregGPT responses
 - [ ] Watch folder for new `.md` documents
-- [ ] Enable memory / con
+- [ ] Add a parameter to `config.yaml` to set the log level used for logging
+
+## ✅ Design the Citation Format
+
+- [x] Should strip raw metadata (e.g., `chunk_start`, `distance`)
+- [x] Display only: Cleaned file name (e.g., `Agile Project Management`), optionally a preview or section title
+- [ ] Optional: Hyperlink to source if your UI supports it
+- [x] Decide if Markdown, footnotes, or bullet lists will be used based on front-end rendering capabilities
+- [x] Modify the response builder in the backend to apply new formatting logic
+- [x] Create a formatting utility function (e.g., `format_sources(results)` in Python or JS)
+- [x] Output: Clean, user-facing string or HTML
+- [x] Remove technical metadata from user-facing output (`chunk_start`, `distance`, etc.)
+- [x] Add the new `Sources:` section to the final response payload
+- [x] Ensure that the front-end renders the new citation format correctly
+- [x] Markdown rendering, styled list, or tooltip format
+- [ ] Support clickable links to files (if internal documents are hosted)
+- [x] Write unit tests for the formatting function
+- [x] Verify no breaking changes to current app behavior

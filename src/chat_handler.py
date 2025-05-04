@@ -14,7 +14,7 @@ class ChatHandler:
         """Initialize with configuration dictionary."""
         logger.info("Initializing ChatHandler with config")
         self.config = config
-        self.model = ModelManager(config['model_path'])
+        self.model = ModelManager(config)
         self.loader = DocumentLoader(
             config['docs_dir'],
             chunk_size=config['chunk_size'],
@@ -91,19 +91,63 @@ Answer:"""
         
     def format_response(self, response: str, sources: List[Dict]) -> str:
         """
-        Format response with source citations.
+        Format response with enhanced source citations.
         
         Args:
             response: Raw LLM response
             sources: List of source metadata dictionaries
             
         Returns:
-            Formatted response with citations
+            Formatted response with clean citations and references
         """
         if not sources:
             return response
+
+        # Format sources using utility function
+        formatted_sources = self._format_sources(sources)
+        
+        # Add citations in the text
+        cited_response = response
+        for i, source in enumerate(sources, 1):
+            cited_response = cited_response.replace(
+                source.get('content', ''),
+                f"{source.get('content', '')} [^{i}]"
+            )
+
+        return f"{cited_response}\n\n### Sources\n{formatted_sources}"
+
+    def _format_sources(self, sources: List[Dict]) -> str:
+        """
+        Format source references into clean bullet points.
+        
+        Args:
+            sources: List of source metadata dictionaries
             
-        source_refs = "\n\nSources:\n" + "\n".join(
-            f"- {s.get('source', str(s))}" for s in sources
-        )
-        return response + source_refs
+        Returns:
+            Formatted markdown string with clean source references
+        """
+        formatted = []
+        for i, source in enumerate(sources, 1):
+            # Clean source name (remove path and extension)
+            source_name = source.get('source', '')
+            if not source_name and 'metadata' in source:
+                source_name = source['metadata'].get('source', '')
+            
+            if not source_name:
+                logger.warning(f"Missing source name in document metadata: {source}")
+                source_name = "Document"
+            else:
+                if '/' in source_name:
+                    source_name = source_name.split('/')[-1]
+                if '.' in source_name:
+                    source_name = source_name.split('.')[0]
+                source_name = source_name.replace('_', ' ').title()
+
+            # Get excerpt
+            excerpt = source.get('content', '')[:100] + ('...' if len(source.get('content', '')) > 100 else '')
+            
+            formatted.append(
+                f"- [^{i}] **{source_name}**\n  {excerpt}"
+            )
+            
+        return "\n".join(formatted)
