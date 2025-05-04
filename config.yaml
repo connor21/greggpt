@@ -1,12 +1,21 @@
 # greggpt configuration
-model_path: "models/tinyllama-1.1b-chat-v1.0.Q2_K.gguf"
 docs_dir: "docs"
 vectorstore_path: "vectorstore"
 
-# Model parameters
-max_tokens: 512
-temperature: 0.7
-top_p: 0.9
+# Model configuration
+models:
+  tinyllama:
+    path: "models/tinyllama-1.1b-chat-v1.0.Q2_K.gguf"
+    max_tokens: 512
+    temperature: 0.7
+    top_p: 0.9
+  mistral:
+    path: "models/mistral-7b-instruct-v0.1.Q4_K_M.gguf"
+    max_tokens: 1024
+    temperature: 0.8
+    top_p: 0.95
+    
+active_model: "tinyllama"  # Default model
 
 # Chunking settings
 chunk_size: 1000
