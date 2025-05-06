@@ -26,10 +26,21 @@ def timeout(seconds=30):
 class VectorStore:
     """Handles document embeddings and vector storage."""
     
-    def __init__(self, persist_dir: str = "vectorstore"):
-        """Initialize vector store with persistent storage."""
+    def __init__(self, persist_dir: str = "vectorstore", initial_docs: List[Dict] = None):
+        """Initialize vector store with persistent storage.
+        
+        Args:
+            persist_dir: Directory to store vector data
+            initial_docs: Optional documents to process on startup
+        """
         self.persist_dir = persist_dir
         self._initialize_models()
+        if initial_docs and not self._has_documents():
+            self.store_documents(initial_docs)
+
+    def _has_documents(self) -> bool:
+        """Check if collection contains any documents."""
+        return len(self.collection.get()['ids']) > 0
         
     def _initialize_models(self):
         """Initialize models with proper cleanup handling."""

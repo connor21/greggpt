@@ -1,10 +1,12 @@
 """Module to manage local LLM models."""
 import logging
+import os
 from typing import Dict, Optional
 import yaml
 
 logger = logging.getLogger(__name__)
 from llama_cpp import Llama
+from transformers import AutoModelForCausalLM, AutoTokenizer
 
 class ModelManager:
     """Handles loading and querying of local LLM models."""
@@ -31,12 +33,24 @@ class ModelManager:
         if not model_config:
             raise ValueError(f"Model {model_name} not found in config")
             
-        logger.info(f"Loading model {model_name} from {model_config['path']}")
-        self.llm = Llama(
-            model_path=model_config['path'],
-            n_ctx=2048,
-            n_threads=4
-        )
+        model_path = model_config['path']
+        logger.info(f"Loading model {model_name} from {model_path}")
+        
+        # Determine model type based on file extension
+        if model_path.endswith('.gguf'):
+            self.llm = Llama(
+                model_path=model_path,
+                n_ctx=2048,
+                n_threads=4
+            )
+        elif model_path.endswith('.safetensors'):
+            self.llm = {
+                'model': AutoModelForCausalLM.from_pretrained(model_path),
+                'tokenizer': AutoTokenizer.from_pretrained(model_path)
+            }
+        else:
+            raise ValueError(f"Unsupported model format: {model_path}")
+            
         self.active_model = model_name
         logger.info(f"Model {model_name} loaded successfully")
         
@@ -55,13 +69,24 @@ class ModelManager:
         model_config = self.models[self.active_model]
         logger.info(f"Generating response using {self.active_model} model")
         
-        output = self.llm.create_chat_completion(
-            messages=[{"role": "user", "content": prompt}],
-            max_tokens=model_config.get('max_tokens', 512),
-            temperature=model_config.get('temperature', 0.7),
-            top_p=model_config.get('top_p', 0.9)
-        )
-        response = output['choices'][0]['message']['content']
+        if isinstance(self.llm, dict):  # Transformers model
+            inputs = self.llm['tokenizer'](prompt, return_tensors="pt")
+            outputs = self.llm['model'].generate(
+                **inputs,
+                max_new_tokens=model_config.get('max_tokens', 512),
+                temperature=model_config.get('temperature', 0.7),
+                top_p=model_config.get('top_p', 0.9)
+            )
+            response = self.llm['tokenizer'].decode(outputs[0], skip_special_tokens=True)
+        else:  # GGUF model
+            output = self.llm.create_chat_completion(
+                messages=[{"role": "user", "content": prompt}],
+                max_tokens=model_config.get('max_tokens', 512),
+                temperature=model_config.get('temperature', 0.7),
+                top_p=model_config.get('top_p', 0.9)
+            )
+            response = output['choices'][0]['message']['content']
+            
         logger.info(f"Generated response (length: {len(response)} chars)")
         return response
         

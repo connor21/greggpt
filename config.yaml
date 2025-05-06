@@ -9,11 +9,21 @@ models:
     max_tokens: 512
     temperature: 0.7
     top_p: 0.9
+  llama:
+    path: "models/llama-2-7b-chat.Q4_K_M.gguf"
+    max_tokens: 512
+    temperature: 0.7
+    top_p: 0.9
   mistral:
     path: "models/mistral-7b-instruct-v0.1.Q4_K_M.gguf"
     max_tokens: 1024
     temperature: 0.8
     top_p: 0.95
+  gpt4all:
+    path: "models/gpt4all-falcon-q4_0.gguf"
+    max_tokens: 512
+    temperature: 0.7
+    top_p: 0.9
     
 active_model: "tinyllama"  # Default model
 

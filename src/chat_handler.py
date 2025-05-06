@@ -21,15 +21,19 @@ class ChatHandler:
             chunk_overlap=config['chunk_overlap']
         )
         self.retriever = Retriever(config['vectorstore_path'])
+        self._current_model = None  # Track current model
+
         
-        # Load and store documents at startup
-        logger.info("Loading and storing documents")
+        logger.info("ChatHandler components initialized")
+
+    def process_documents(self):
+        """Process documents.""" 
+        logger.info("Processing documents")
         documents = self.loader.load_documents()
         chunks = self.loader.chunk_documents(documents)
         self.retriever.store_documents(chunks)
+        self._current_model = self.model.active_model
         logger.info(f"Loaded {len(documents)} documents and stored {len(chunks)} chunks")
-        
-        logger.info("ChatHandler components initialized")
         
     def process_query(self, query: str) -> Dict:
         """
@@ -54,9 +58,9 @@ class ChatHandler:
                 'tokens': 0
             }
             
-        # Retrieve relevant context
+        # Retrieve relevant context (no document reloading occurs here)
         context_chunks = self.retriever.retrieve_relevant_chunks(query)
-        logger.info(f"Retrieved {len(context_chunks)} context chunks")
+        logger.info(f"Found {len(context_chunks)} relevant chunks from vector store")
         
         # Format prompt with context
         prompt = self._format_prompt(query, context_chunks)

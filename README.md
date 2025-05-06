@@ -65,7 +65,20 @@ wget https://huggingface.co/TheBloke/Mistral-7B-Instruct-v0.1-GGUF/resolve/main/
 
 **GPT4All (3.5B) - Optimized for CPU:**
 ```bash
+# Using wget:
 wget https://gpt4all.io/models/gguf/gpt4all-falcon-q4_0.gguf -P models/
+
+# Using curl:
+curl -L https://gpt4all.io/models/gguf/gpt4all-falcon-q4_0.gguf -o models/gpt4all-falcon-q4_0.gguf
+```
+
+**Google Gemma (7B) - State-of-the-art:**
+```bash
+# Using wget:
+wget https://huggingface.co/google/gemma-7b-it/resolve/main/model.safetensors -P models/
+
+# Using curl:
+curl -L https://huggingface.co/google/gemma-7b-it/resolve/main/model.safetensors -o models/gemma-7b-it.safetensors
 ```
 
 > Note: Larger models require more RAM. Start with TinyLlama if unsure.

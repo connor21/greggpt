@@ -48,7 +48,7 @@ def main():
     # File watching already disabled via environment variable
     
     logging.basicConfig(
-        level=logging.DEBUG,
+        level=logging.INFO,
         format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
     )
     logger = logging.getLogger(__name__)
@@ -57,6 +57,7 @@ def main():
     st.write("Chat with your documents using local LLMs")
     
     # Initialize chat handler
+    
     chat_handler = init_chat_handler()
     
     # Initialize session state
@@ -64,7 +65,13 @@ def main():
         st.session_state.messages = []
         st.session_state.token_count = 0
         st.session_state.current_model = chat_handler.model.active_model
+        st.session_state.startup = True
+        
     
+    if st.session_state.startup:
+        chat_handler.process_documents()
+        st.session_state.startup = False
+
     # Model selection dropdown
     available_models = chat_handler.model.get_available_models()
     selected_model = st.sidebar.selectbox(
