@@ -58,7 +58,6 @@ This checklist outlines the modular, independent steps required to build and dep
 - [x] Optimize chunking and embedding performance
 - [x] Clean up unused imports, functions, and test artifacts
 - [x] Add error handling for empty queries, missing models, etc.
-- [x] Only process documents on startup or if the AI model is changed (5/6/2025)
 
 ## ✅ Documentation and Deployment
 - [x] Expand `README.md` with setup, usage, and design notes
@@ -72,6 +71,7 @@ This checklist outlines the modular, independent steps required to build and dep
 - [ ] Add a parameter to `config.yaml` to set the log level used for logging
 
 ## ✅ Design the Citation Format
+
 - [x] Should strip raw metadata (e.g., `chunk_start`, `distance`)
 - [x] Display only: Cleaned file name (e.g., `Agile Project Management`), optionally a preview or section title
 - [ ] Optional: Hyperlink to source if your UI supports it
@@ -86,9 +86,3 @@ This checklist outlines the modular, independent steps required to build and dep
 - [ ] Support clickable links to files (if internal documents are hosted)
 - [x] Write unit tests for the formatting function
 - [x] Verify no breaking changes to current app behavior
-
-## ✅ Implement google Gemma
-- [ ] Extend app to allow selection of `google/gemma-7b-it`
-- [ ] Download the Gemma model into `models``
-- [ ] Implement and test Gemma
-- [ ] Update documentation in `README.md``

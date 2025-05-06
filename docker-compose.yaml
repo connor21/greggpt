@@ -1,0 +1,16 @@
+services:
+  llm-app:
+    build:
+      context: .             # Pfad zur Dockerfile
+      dockerfile: Dockerfile # Falls du sie umbenannt hast
+    container_name: llm-streamlit
+    ports:
+      - "8501:8501"          # Streamlit Port Mapping
+    volumes:
+      - ./models:/app/models         # Modelle lokal mounten
+      - ./docs:/app/docs             # Dokumente lokal mounten
+      - ./vectorstore:/app/vectorstore # Persistenter ChromaDB Speicher
+    environment:
+      - PYTHONUNBUFFERED=1
+      - PYTHONDONTWRITEBYTECODE=1
+    restart: unless-stopped
