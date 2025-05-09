@@ -84,3 +84,9 @@ This checklist outlines the modular, independent steps required to build and dep
 - [x] Markdown rendering, styled list, or tooltip format
 - [x] Write unit tests for the formatting function
 - [x] Verify no breaking changes to current app behavior
+
+## ✅ Add GPU Support
+- [x] If GPU available use it for processing queries (5/9/2025)
+- [x] Make usage of GPU configurable in `config.yaml` (5/9/2025)
+- [x] Add GPU and CPU hardware information in sidebar of app (5/9/2025)
+

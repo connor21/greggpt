@@ -1,7 +1,8 @@
 """Module to manage local LLM models."""
 import logging
 import os
-from typing import Dict, Optional
+import torch
+from typing import Dict, Optional, Tuple
 import yaml
 
 logger = logging.getLogger(__name__)
@@ -24,6 +25,17 @@ class ModelManager:
         })
         self.active_model = config.get('active_model', 'default')
         self.llm = None
+        self.hardware_info = self._get_hardware_info()
+        
+    def _get_hardware_info(self) -> Dict:
+        """Get information about available hardware."""
+        gpu_available = torch.cuda.is_available()
+        return {
+            'gpu_available': gpu_available,
+            'gpu_count': torch.cuda.device_count() if gpu_available else 0,
+            'gpu_name': torch.cuda.get_device_name(0) if gpu_available else None,
+            'cpu_cores': os.cpu_count()
+        }
         
     def load_model(self, model_name: Optional[str] = None):
         """Load the specified model into memory."""
@@ -37,6 +49,9 @@ class ModelManager:
         logger.info(f"Loading model {model_name} from {model_path}")
         
         # Determine model type based on file extension
+        hardware_config = self.config.get('hardware', {})
+        use_gpu = hardware_config.get('enable_gpu', False) and self.hardware_info['gpu_available']
+        
         if model_path.endswith('.gguf'):
             self.llm = Llama(
                 model_path=model_path,
@@ -44,8 +59,14 @@ class ModelManager:
                 n_threads=4
             )
         elif model_path.endswith('.safetensors'):
+            device = 'cuda' if use_gpu else 'cpu'
+            logger.info(f"Loading model on {device.upper()}")
             self.llm = {
-                'model': AutoModelForCausalLM.from_pretrained(model_path),
+                'model': AutoModelForCausalLM.from_pretrained(
+                    model_path,
+                    device_map='auto' if use_gpu else None,
+                    torch_dtype=torch.float16 if use_gpu else torch.float32
+                ),
                 'tokenizer': AutoTokenizer.from_pretrained(model_path)
             }
         else:
@@ -93,3 +114,7 @@ class ModelManager:
     def get_available_models(self) -> Dict:
         """Return dictionary of available models."""
         return {name: cfg['path'] for name, cfg in self.models.items()}
+        
+    def get_hardware_info(self) -> Dict:
+        """Get information about available hardware."""
+        return self.hardware_info

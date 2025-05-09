@@ -29,3 +29,9 @@ chunk_overlap: 200
 # Logging configuration
 logging:
   level: "INFO"
+
+# Hardware configuration
+hardware:
+  enable_gpu: true
+  gpu_preferred: true
+  fallback_to_cpu: true

@@ -127,6 +127,20 @@ def main():
     with st.sidebar:
         st.header("Session Info")
         st.metric("Total Tokens Used", st.session_state.token_count)
+        
+        # Hardware information
+        hw_info = chat_handler.model.get_hardware_info()
+        st.subheader("Hardware")
+        st.write(f"CPU Cores: {hw_info['cpu_cores']}")
+        if hw_info['gpu_available']:
+            st.write(f"GPU: {hw_info['gpu_name']}")
+            st.write(f"GPU Count: {hw_info['gpu_count']}")
+            gpu_enabled = st.toggle("Enable GPU", 
+                                  value=config.get('hardware', {}).get('enable_gpu', False),
+                                  help="Use GPU acceleration if available")
+        else:
+            st.write("GPU: Not available")
+            
         if st.button("Clear Chat"):
             st.session_state.messages = []
             st.session_state.token_count = 0
