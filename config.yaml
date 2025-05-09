@@ -19,14 +19,13 @@ models:
     max_tokens: 1024
     temperature: 0.8
     top_p: 0.95
-  gpt4all:
-    path: "models/gpt4all-falcon-q4_0.gguf"
-    max_tokens: 512
-    temperature: 0.7
-    top_p: 0.9
     
-active_model: "tinyllama"  # Default model
+active_model: "mistral"  # Default model
 
 # Chunking settings
 chunk_size: 1000
 chunk_overlap: 200
+
+# Logging configuration
+logging:
+  level: "INFO"

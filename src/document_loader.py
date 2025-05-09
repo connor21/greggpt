@@ -1,14 +1,39 @@
 """Module for loading and processing markdown documents."""
 import logging
+import time
 from pathlib import Path
-from typing import List, Dict
+from typing import List, Dict, Optional, Callable
 
 logger = logging.getLogger(__name__)
+
+WATCHDOG_AVAILABLE = False
+try:
+    from watchdog.observers import Observer
+    from watchdog.events import FileSystemEventHandler
+    WATCHDOG_AVAILABLE = True
+except ImportError:
+    logger.warning("watchdog package not available - file watching disabled")
+
+if WATCHDOG_AVAILABLE:
+    class MarkdownFileHandler(FileSystemEventHandler):
+        """Handler for markdown file system events."""
+        
+        def __init__(self, callback: Callable[[Path], None]):
+            self.callback = callback
+            
+        def on_created(self, event):
+            if not event.is_directory and event.src_path.endswith('.md'):
+                self.callback(Path(event.src_path))
+                
+        def on_modified(self, event):
+            if not event.is_directory and event.src_path.endswith('.md'):
+                self.callback(Path(event.src_path))
 
 class DocumentLoader:
     """Handles loading and preprocessing of markdown documents."""
     
     def __init__(self, docs_dir: str, chunk_size: int = 1000, chunk_overlap: int = 200):
+        self.observer: Optional[Observer] = None
         """Initialize with directory and chunking parameters.
         
         Args:
@@ -64,6 +89,36 @@ class DocumentLoader:
             logger.error(f"Document loading failed: {e}")
             raise
         
+    def watch_documents(self, callback: Callable[[Path], None]):
+        """Start watching the docs directory for new/changed markdown files.
+        
+        Args:
+            callback: Function to call when a new/changed .md file is detected
+        """
+        if not WATCHDOG_AVAILABLE:
+            logger.warning("Cannot watch documents - watchdog package not installed")
+            return
+            
+        if not self.docs_dir.exists():
+            logger.error(f"Cannot watch non-existent directory: {self.docs_dir}")
+            return
+            
+        try:
+            event_handler = MarkdownFileHandler(callback)
+            self.observer = Observer()
+            self.observer.schedule(event_handler, str(self.docs_dir), recursive=True)
+            self.observer.start()
+            logger.info(f"Started watching {self.docs_dir} for markdown file changes")
+        except Exception as e:
+            logger.error(f"Failed to start document watcher: {e}")
+        
+    def stop_watching(self):
+        """Stop watching the documents directory."""
+        if self.observer and self.observer.is_alive():
+            self.observer.stop()
+            self.observer.join()
+            logger.info("Stopped watching documents directory")
+
     def chunk_documents(self, documents: List[Dict]) -> List[Dict]:
         """Split documents into smaller chunks for processing.
         

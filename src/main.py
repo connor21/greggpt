@@ -47,8 +47,10 @@ def main():
     
     # File watching already disabled via environment variable
     
+    config = load_config()
+    log_level = getattr(logging, config.get('logging', {}).get('level', 'INFO').upper())
     logging.basicConfig(
-        level=logging.INFO,
+        level=log_level,
         format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
     )
     logger = logging.getLogger(__name__)
